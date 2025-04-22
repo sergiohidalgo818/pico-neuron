@@ -21,7 +21,7 @@
 class Model {
 
 public:
-  bool synapsis;
+  bool synaptic;
   float threshold;
 
 public:
@@ -31,7 +31,7 @@ public:
    *
    * @return Returns the model initialized.
    */
-  Model(bool synapsis);
+  Model(bool synaptic);
 
   /**
    * @brief This function calculates t + t_increment on the model.

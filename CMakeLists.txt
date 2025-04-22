@@ -13,36 +13,38 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PICO_BOARD pico_w CACHE STRING "Board type")
-
-# Pull in Raspberry Pi Pico SDK (must be before project)
+include(pico_neuron_config.cmake)
 include(pico_sdk_import.cmake)
 
 project(pico-neuron-c DESCRIPTION "Program that runs a neural model in a Raspberry Pico" LANGUAGES C CXX ASM)
 
-# Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
 
-# add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron-c.cpp )
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron-c.cpp
-    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/ConfigFile/ConfigFile.cpp  # Add your class cpp file
 )
 
 # Define your header files
 set(HEADERS
-  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/ConfigFile/ConfigFile.hpp  # Add your class header file
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/default.hpp 
 )
 
-# Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Add include directories for headers
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_CURRENT_LIST_DIR} 
     ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}
 )
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  DECIMAL_PRECISION=${DECIMAL_PRECISION_VALUE}
+  MODEL_NAME=${MODEL_NAME_VALUE}
+  SYNAPTICAL=${SYNAPTICAL_VALUE}
+  RESPONSE=${RESPONSE_VALUE}
+  THRESHOLD=${THRESHOLD_VALUE}
+  ORDERED_PARAMS=${ORDERED_PARAMS_VALUE}
+)
+
 # no_flash means the target is to run from RAM
 # pico_set_binary_type(pico-neuron-c no_flash)
 
@@ -52,7 +54,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 
 # Add the standard include files to the build
-# target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR})
 
 # Add any user requested libraries
 target_link_libraries(

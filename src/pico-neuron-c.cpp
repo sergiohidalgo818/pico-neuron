@@ -7,26 +7,25 @@
  *
  * @copyright Copyright (c) 2025
  */
-#include "ConfigFile/ConfigFile.hpp"
+#include "default.hpp"
 #include "pico/stdlib.h"
 #include <iostream>
 #include <string>
-
+#include <vector>
 int main(int argc, char **argv) {
-  auto config = ConfigFile::read_config("./config.cfg");
 
-  std::string model_name = config["model_name"];
-  bool synaptical = (config["synaptical"] == "true");
-  std::string response = config["response"];
-  float threshold = std::stof(config["threshold"]);
+  std::string model_name = MODEL_NAME;
 
-  std::vector<float> ordered_params =
-      ConfigFile::string_to_vector(config["ordered_params"]);
+  bool synaptic = SYNAPTIC;
+  std::string response = RESPONSE;
+  float threshold = THRESHOLD;
+
+  std::vector<float> ordered_params = {ORDERED_PARAMS};
 
   stdio_init_all();
 
   std::cout << model_name << std::endl;
-  std::cout << synaptical << std::endl;
+  std::cout << synaptic << std::endl;
   std::cout << response << std::endl;
   std::cout << threshold << std::endl;
 
