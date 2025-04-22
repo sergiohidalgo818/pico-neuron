@@ -7,12 +7,15 @@
  *
  * @copyright Copyright (c) 2025
  */
+#include "Model/HindmarshRose.hpp"
+#include "Model/ModelUtils.hpp"
 #include "default.hpp"
 #include "pico/stdlib.h"
 #include <iostream>
 #include <string>
 #include <vector>
-int main(int argc, char **argv) {
+
+int main() {
 
   std::string model_name = MODEL_NAME;
 
@@ -21,6 +24,8 @@ int main(int argc, char **argv) {
   float threshold = THRESHOLD;
 
   std::vector<float> ordered_params = {ORDERED_PARAMS};
+
+  HindmarshRose *model = new HindmarshRose(synaptic, ordered_params, 0, 0.001);
 
   stdio_init_all();
 
@@ -34,4 +39,13 @@ int main(int argc, char **argv) {
     std::cout << value << " ";
   }
   std::cout << std::endl;
+  std::cout << std::endl;
+
+  for (int i = 0; i < 4000; i++) {
+    model->calculate();
+    std::cout << model->x << " ";
+    std::cout << model->y << " ";
+    std::cout << model->z << " ";
+    std::cout << model->time << std::endl;
+  }
 }

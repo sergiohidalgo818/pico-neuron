@@ -1,0 +1,51 @@
+/**
+ * @file HindmarshRose.cpp
+ * @author Sergio Hidalgo (sergio.hidalgo@estudiante.uam.es)
+ * @brief Implementation file in c++ for the class of HindmarshRose class
+ * @version 0.1
+ * @date 2024-07-31
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+#include "Model/HindmarshRose.hpp"
+
+HindmarshRose::HindmarshRose(bool synaptic, std::vector<float> initial_values,
+                             float initial_time, float time_increment)
+    : Model(synaptic, initial_values, initial_time, time_increment) {
+  this->x = initial_values[0];
+  this->y = initial_values[1];
+  this->z = initial_values[2];
+  this->e = initial_values[3];
+  this->S = initial_values[4];
+  this->m = initial_values[5];
+}
+
+HindmarshRose::HindmarshRose(bool synaptic, float threshold,
+                             std::vector<float> initial_values,
+                             float initial_time, float time_increment)
+    : Model(synaptic, threshold, initial_values, initial_time, time_increment) {
+  this->x = initial_values[0];
+  this->y = initial_values[1];
+  this->z = initial_values[2];
+  this->e = initial_values[3];
+  this->S = initial_values[4];
+  this->m = initial_values[5];
+}
+void HindmarshRose::calculate() {
+  float value = 0;
+  if (this->synaptic) {
+    // TODO: Add the synaptic calculation
+  }
+  float aux_x, aux_y, aux_z;
+
+  aux_x = x + time_increment * (y + 3 * x * x - x * x * x - z + e);
+  aux_y = y + time_increment * (1 - 5 * x * x - y);
+  aux_z = z + time_increment * m * (-z + S * (x + 1.6));
+
+  this->x = aux_x;
+  this->y = aux_y;
+  this->z = aux_z;
+  this->time += this->time_increment;
+}
+void HindmarshRose::free() { delete this; }

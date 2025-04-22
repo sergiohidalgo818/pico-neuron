@@ -23,11 +23,15 @@ pico_sdk_init()
 
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron-c.cpp
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/Model.cpp
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/HindmarshRose.cpp
 )
 
 # Define your header files
 set(HEADERS
   ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/default.hpp 
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/Model.hpp
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/HindmarshRose.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -35,6 +39,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_CURRENT_LIST_DIR} 
     ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   DECIMAL_PRECISION=${DECIMAL_PRECISION_VALUE}
