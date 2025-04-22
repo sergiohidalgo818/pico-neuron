@@ -1,19 +1,38 @@
-#include <stdio.h>
-
-#include "hardware/timer.h"
-#include "hardware/uart.h"
+/**
+ * @file pico-neuron-c.cpp
+ * @author Sergio Hidalgo (sergiohg.dev@gmail.com)
+ * @brief Main rutine for the pico-neuron program
+ * @version 0.1
+ * @date 2025-04-21
+ *
+ * @copyright Copyright (c) 2025
+ */
+#include "ConfigFile/ConfigFile.hpp"
 #include "pico/stdlib.h"
+#include <iostream>
+#include <string>
 
-int64_t alarm_callback(alarm_id_t id, void *user_data) {
-  printf("Hello, world!\n");
-  return 0;
-}
+int main(int argc, char **argv) {
+  auto config = ConfigFile::read_config("./config.cfg");
 
-int main() {
+  std::string model_name = config["model_name"];
+  bool synaptical = (config["synaptical"] == "true");
+  std::string response = config["response"];
+  float threshold = std::stof(config["threshold"]);
+
+  std::vector<float> ordered_params =
+      ConfigFile::string_to_vector(config["ordered_params"]);
+
   stdio_init_all();
 
-  // Timer example code - This example fires off the callback after 2000ms
-  add_alarm_in_ms(2000, alarm_callback, NULL, false);
-  while (true) {
+  std::cout << model_name << std::endl;
+  std::cout << synaptical << std::endl;
+  std::cout << response << std::endl;
+  std::cout << threshold << std::endl;
+
+  std::cout << "Converted values: ";
+  for (const auto &value : ordered_params) {
+    std::cout << value << " ";
   }
+  std::cout << std::endl;
 }

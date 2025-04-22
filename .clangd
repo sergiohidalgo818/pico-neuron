@@ -5,9 +5,9 @@ CompileFlags:
     "-I/usr/lib/arm-none-eabi/include/c++/13.2.1/backward",
     "-I/usr/lib/gcc/arm-none-eabi/13.2.1/include",
     "-I/usr/lib/gcc/arm-none-eabi/13.2.1/include-fixed",
-    "-I/usr/lib/arm-none-eabi/include",
+    "-I/usr/lib//arm-none-eabi/include",
     "--target=arm-none-eabi",
-    "-mcpu=arm7tdmi",
+    "-mcpu=cortex-m0plus", 
     "-mthumb",
     "-D__RP2040__"
   ]

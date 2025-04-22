@@ -2,7 +2,8 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(PICO_SDK_FETCH_FROM_GIT on)
-set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_BINARY_DIR} )
+set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_BINARY_DIR}/_deps)
+set(PICO_CXX_ENABLE_EXCEPTIONS off)
 
 set (CODE_SOURCE_DIR src)
 set (CODE_HEADERS_DIR inc)
@@ -23,21 +24,35 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron-c.cpp )
+# add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron-c.cpp )
+set(SOURCES
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron-c.cpp
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/ConfigFile/ConfigFile.cpp  # Add your class cpp file
+)
 
+# Define your header files
+set(HEADERS
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/ConfigFile/ConfigFile.hpp  # Add your class header file
+)
+
+# Create the executable
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Add include directories for headers
+target_include_directories(${PROJECT_NAME} PRIVATE 
+    ${CMAKE_CURRENT_LIST_DIR} 
+    ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}
+)
 # no_flash means the target is to run from RAM
-pico_set_binary_type(pico-neuron-c no_flash)
+# pico_set_binary_type(pico-neuron-c no_flash)
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(pico-neuron-c 1)
-pico_enable_stdio_usb(pico-neuron-c 0)
+# pico_enable_stdio_uart(pico-neuron-c 1)
+# pico_enable_stdio_usb(pico-neuron-c 0)
 
-# Add the standard library to the build
-target_link_libraries( ${PROJECT_NAME}
-        pico_stdlib)
 
 # Add the standard include files to the build
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR})
+# target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR})
 
 # Add any user requested libraries
 target_link_libraries(
