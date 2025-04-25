@@ -1,6 +1,5 @@
 import os
 import argparse
-from re import search
 import pandas as pd
 import matplotlib.pyplot as plt
 

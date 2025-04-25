@@ -10,42 +10,38 @@
 #include "Model/HindmarshRose.hpp"
 #include "Model/ModelUtils.hpp"
 #include "default.hpp"
+#include "hardware/uart.h"
 #include "pico/stdlib.h"
 #include <iostream>
 #include <string>
 #include <vector>
 
+#define UART_ID uart0
+#define BAUD_RATE 9600
+#define UART_TX_PIN 0
+#define UART_RX_PIN 1
 int main() {
 
   std::string model_name = MODEL_NAME;
-
-  bool synaptic = SYNAPTIC;
   std::string response = RESPONSE;
   float threshold = THRESHOLD;
-
+  bool synaptic = SYNAPTIC;
   std::vector<float> ordered_params = {ORDERED_PARAMS};
+
+  char buffer[50];
 
   HindmarshRose *model = new HindmarshRose(synaptic, ordered_params, 0, 0.001);
 
   stdio_init_all();
 
-  std::cout << model_name << std::endl;
-  std::cout << synaptic << std::endl;
-  std::cout << response << std::endl;
-  std::cout << threshold << std::endl;
+  uart_init(UART_ID, BAUD_RATE);
 
-  std::cout << "Converted values: ";
-  for (const auto &value : ordered_params) {
-    std::cout << value << " ";
-  }
-  std::cout << std::endl;
-  std::cout << std::endl;
+  gpio_set_function(UART_TX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_TX_PIN));
+  gpio_set_function(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
 
-  for (int i = 0; i < 4000; i++) {
+  while (true) {
     model->calculate();
-    std::cout << model->x << " ";
-    std::cout << model->y << " ";
-    std::cout << model->z << " ";
-    std::cout << model->time << std::endl;
+    sprintf(buffer, "%.5f\n", model->x);
+    uart_puts(UART_ID, buffer);
   }
 }

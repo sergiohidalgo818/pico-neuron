@@ -54,7 +54,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # pico_set_binary_type(pico-neuron-c no_flash)
 
 # Modify the below lines to enable/disable output over UART/USB
-# pico_enable_stdio_uart(pico-neuron-c 1)
+pico_enable_stdio_uart(pico-neuron-c 1)
 # pico_enable_stdio_usb(pico-neuron-c 0)
 
 
@@ -65,6 +65,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${P
 target_link_libraries(
         ${PROJECT_NAME} 
         pico_stdlib
+        hardware_uart
         hardware_timer
         )
 
