@@ -90,9 +90,37 @@ if __name__ == "__main__":
         type=str,
         default="hindmarsh-rose.csv",
     )
-    parser.add_argument("-s", "--separator", type=str, default=" ")
-    parser.add_argument("-sn", "--serial-name", type=str, default="/dev/ttyUSB0")
-    parser.add_argument("-si", "--serial-id", type=int, default=9600)
+    parser.add_argument(
+        "-s", "--separator", help="Separator for the data csv", type=str, default=" "
+    )
+    parser.add_argument(
+        "-sn",
+        "--serial-name",
+        help="Serial name for the raspberry pi",
+        type=str,
+        default="/dev/ttyUSB0",
+    )
+    parser.add_argument(
+        "-si",
+        "--serial-id",
+        help="Serial id for the raspberry pi",
+        type=int,
+        default=9600,
+    )
+    parser.add_argument(
+        "-ut",
+        "--use-timer",
+        help="NOT RECOMENDED. Use python timer to set the data time",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-ti",
+        "--time-incremet",
+        help="Only works when --use-timer is not set, the time increment for the data",
+        type=float,
+        default=0.001,
+    )
 
     args = parser.parse_args()
 
@@ -105,7 +133,13 @@ if __name__ == "__main__":
 
     ser = serial.Serial(args.serial_name, args.serial_id, timeout=1)
 
-    initial_time: int = time.perf_counter_ns()
+    to_secs: int = 1000000000
+    initial_time: float
+
+    if args.use_timer:
+        initial_time = time.perf_counter_ns() / to_secs
+    else:
+        initial_time = 0
 
     while True:
         raw: bytes = ser.readline()
@@ -115,7 +149,12 @@ if __name__ == "__main__":
             try:
                 value: float = float(line)
                 x.append(value)
-                t.append(float((time.perf_counter_ns() - initial_time) / 1000000000))
+                if args.use_timer:
+                    t.append(float((time.perf_counter_ns() - initial_time) / to_secs))
+                else:
+                    t.append(initial_time)
+                    initial_time += args.time_incremet
+
             except ValueError as e:
                 logger.error(e)
         except UnicodeDecodeError as e:

@@ -52,7 +52,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 # no_flash means the target is to run from RAM
-# pico_set_binary_type(pico-neuron-c no_flash)
+pico_set_binary_type(pico-neuron-c no_flash)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(pico-neuron-c 1)
