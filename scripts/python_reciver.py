@@ -28,7 +28,9 @@ class DataWriter:
 
     def write(self, x: list[float], t: list[float]):
         dataframe: pd.DataFrame = pd.DataFrame({"x": x, "time": t})
-        dataframe.to_csv(self.directory + self.filename, sep=self.separator)
+        dataframe.to_csv(
+            self.directory + self.filename, sep=self.separator, index=False
+        )
 
 
 data_writer: DataWriter
@@ -98,10 +100,6 @@ if __name__ == "__main__":
 
     data_writer = DataWriter(args.directory, args.filename, args.separator)
 
-    # signal.signal(
-    #     signal.SIGINT,
-    #     lambda sig, frame, x=x, t=t, data_writer=data_writer: signal_handler,
-    # )
     signal.signal(signal.SIGINT, signal_handler)
     logger.info("Press Ctrl+C to save the file with the data")
 

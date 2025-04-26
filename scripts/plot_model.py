@@ -15,9 +15,14 @@ def plot_model_data(directory: str, filename: str, name_model: str, separator: s
     plt.figure(figsize=(12, 6))
 
     plt.plot(data_frame["time"], data_frame["x"])
-    plt.xlim((data_frame["time"].min(), data_frame["time"].max()))
-
+    # plt.xlim((data_frame["time"].min(), data_frame["time"].max()))
+    # plt.ylim(top=5)
+    #
     name = filename.split(".")[0]
+
+    plt.xlabel("time (ms)")
+    plt.ylabel("voltage (mV)")
+    plt.title(name)
 
     plt.savefig("graphs/execution_" + name_model + "/" + name + ".png")
     plt.close()
