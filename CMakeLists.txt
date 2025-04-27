@@ -16,13 +16,13 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 include(pico_neuron_config.cmake)
 include(pico_sdk_import.cmake)
 
-project(pico-neuron-c DESCRIPTION "Program that runs a neural model in a Raspberry Pico" LANGUAGES C CXX ASM)
+project(pico-neuron DESCRIPTION "Program that runs a neural model in a Raspberry Pico" LANGUAGES C CXX ASM)
 
 pico_sdk_init()
 
 
 set(SOURCES
-    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron-c.cpp
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron.cpp
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/Model.cpp
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/HindmarshRose.cpp
 )
@@ -52,11 +52,11 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 # no_flash means the target is to run from RAM
-pico_set_binary_type(pico-neuron-c no_flash)
+# pico_set_binary_type ( ${PROJECT_NAME} no_flash)
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(pico-neuron-c 1)
-# pico_enable_stdio_usb(pico-neuron-c 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
+pico_enable_stdio_usb(${PROJECT_NAME} 1)
 
 
 # Add the standard include files to the build

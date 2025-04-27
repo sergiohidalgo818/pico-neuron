@@ -131,7 +131,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     logger.info("Press Ctrl+C to save the file with the data")
 
-    ser = serial.Serial(args.serial_name, args.serial_id, timeout=1)
+    ser = serial.Serial(args.serial_name, args.serial_id)
 
     to_secs: int = 1000000000
     initial_time: float

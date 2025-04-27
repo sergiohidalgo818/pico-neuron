@@ -12,7 +12,6 @@
 #include "default.hpp"
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -32,7 +31,7 @@ int main() {
 
   HindmarshRose *model = new HindmarshRose(synaptic, ordered_params, 0, 0.001);
 
-  stdio_init_all();
+  // stdio_init_all();
 
   uart_init(UART_ID, BAUD_RATE);
 
