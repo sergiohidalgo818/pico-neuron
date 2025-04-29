@@ -29,7 +29,10 @@ int main() {
 
   char buffer[50];
 
-  HindmarshRose *model = new HindmarshRose(synaptic, ordered_params, 0, 0.001);
+  HindmarshRose *model =
+      new HindmarshRose(synaptic, 0, 0.001, ordered_params[0],
+                        ordered_params[1], ordered_params[2], ordered_params[3],
+                        ordered_params[4], ordered_params[5]);
 
   // stdio_init_all();
 

@@ -25,7 +25,6 @@ public:
   bool synaptic;
   float threshold;
   float recived_value;
-  std::vector<float> initial_values;
   float time;
   float time_increment;
 
@@ -39,8 +38,7 @@ public:
    *
    * @return Returns the model initialized.
    */
-  Model(bool synaptic, std::vector<float> initial_values, float initial_time,
-        float time_increment);
+  Model(bool synaptic, float initial_time, float time_increment);
 
   /**
    * @brief This function initialices the model.
@@ -52,8 +50,8 @@ public:
    *
    * @return Returns the model initialized.
    */
-  Model(bool synaptic, float threshold, std::vector<float> initial_values,
-        float initial_time, float time_increment);
+  Model(bool synaptic, float threshold, float initial_time,
+        float time_increment);
 
   /**
    * @brief Sends a value to the model.

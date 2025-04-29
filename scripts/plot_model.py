@@ -20,7 +20,7 @@ def plot_model_data(directory: str, filename: str, name_model: str, separator: s
     #
     name = filename.split(".")[0]
 
-    plt.xlabel("time (ms)")
+    plt.xlabel("time (s)")
     plt.ylabel("voltage (mV)")
     plt.title(name)
 

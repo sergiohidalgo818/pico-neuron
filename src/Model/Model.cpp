@@ -9,21 +9,18 @@
  *
  */
 #include "Model/Model.hpp"
-Model::Model(bool synaptic, std::vector<float> initial_values,
-             float initial_time, float time_incremet) {
+Model::Model(bool synaptic, float initial_time, float time_incremet) {
   this->synaptic = synaptic;
-  this->initial_values = initial_values;
   this->threshold = 0;
   this->recived_value = 0;
   this->time = initial_time;
   this->time_increment = time_incremet;
 }
 
-Model::Model(bool synaptic, float threshold, std::vector<float> initial_values,
-             float initial_time, float time_incremet) {
+Model::Model(bool synaptic, float threshold, float initial_time,
+             float time_incremet) {
   this->synaptic = synaptic;
   this->threshold = threshold;
-  this->initial_values = initial_values;
   this->recived_value = 0;
   this->time = initial_time;
   this->time_increment = time_incremet;

@@ -10,28 +10,30 @@
  */
 #include "Model/HindmarshRose.hpp"
 
-HindmarshRose::HindmarshRose(bool synaptic, std::vector<float> initial_values,
-                             float initial_time, float time_increment)
-    : Model(synaptic, initial_values, initial_time, time_increment) {
-  this->x = initial_values[0];
-  this->y = initial_values[1];
-  this->z = initial_values[2];
-  this->e = initial_values[3];
-  this->S = initial_values[4];
-  this->m = initial_values[5];
+HindmarshRose::HindmarshRose(bool synaptic, float initial_time,
+                             float time_increment, float x, float y, float z,
+                             float e, float S, float m)
+    : Model(synaptic, initial_time, time_increment) {
+  this->x = x;
+  this->y = y;
+  this->z = z;
+  this->e = e;
+  this->S = S;
+  this->m = m;
 }
 
-HindmarshRose::HindmarshRose(bool synaptic, float threshold,
-                             std::vector<float> initial_values,
-                             float initial_time, float time_increment)
-    : Model(synaptic, threshold, initial_values, initial_time, time_increment) {
-  this->x = initial_values[0];
-  this->y = initial_values[1];
-  this->z = initial_values[2];
-  this->e = initial_values[3];
-  this->S = initial_values[4];
-  this->m = initial_values[5];
+HindmarshRose::HindmarshRose(bool synaptic, float threshold, float initial_time,
+                             float time_increment, float x, float y, float z,
+                             float e, float S, float m)
+    : Model(synaptic, threshold, initial_time, time_increment) {
+  this->x = x;
+  this->y = y;
+  this->z = z;
+  this->e = e;
+  this->S = S;
+  this->m = m;
 }
+
 void HindmarshRose::calculate() {
   float value = 0;
   if (this->synaptic) {
