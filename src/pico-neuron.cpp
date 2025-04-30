@@ -10,8 +10,9 @@
 #include "Model/HindmarshRose.hpp"
 #include "Model/ModelUtils.hpp"
 #include "default.hpp"
+// #include "hardware/dma.h"
 #include "hardware/uart.h"
-#include "pico/multicore.h"
+
 #include "pico/stdlib.h"
 #include <string>
 #include <sys/stat.h>
@@ -31,7 +32,22 @@ void uart_init_custom() {
   uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
   uart_set_fifo_enabled(UART_ID, true);
 }
-
+// int dma_uart_init() {
+//   int dma_chan;
+//   dma_chan = dma_claim_unused_channel(true);
+//   dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
+//   channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);
+//   channel_config_set_read_increment(&cfg, true);
+//   channel_config_set_write_increment(&cfg, false);
+//   channel_config_set_dreq(&cfg, uart_get_dreq(UART_ID, true)); // TX
+//
+//   dma_channel_configure(dma_chan, &cfg,
+//                         &uart_get_hw(UART_ID)->dr, // UART TX FIFO
+//                         NULL,                      // Set source on transfer
+//                         0,                         // Set count on transfer
+//                         false);                    // Don't start yet
+//   return dma_chan;
+// }
 int main() {
 
   std::string model_name = MODEL_NAME;
@@ -40,7 +56,7 @@ int main() {
   bool synaptic = SYNAPTIC;
   std::vector<double> x;
   std::vector<double> t;
-  char buffer[50];
+  char buffer[32];
 
   const std::vector<float> ordered_params = []() {
     std::vector<float> result;
