@@ -13,28 +13,54 @@
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
 #include <string>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <vector>
 
 #define UART_ID uart0
 #define BAUD_RATE 9600
 #define UART_TX_PIN 0
 #define UART_RX_PIN 1
+#define TIME_INCREMENT 0.001
+
 int main() {
 
   std::string model_name = MODEL_NAME;
   std::string response = RESPONSE;
-  float threshold = THRESHOLD;
+  float threshold = atof(THRESHOLD);
   bool synaptic = SYNAPTIC;
-  std::vector<float> ordered_params = {ORDERED_PARAMS};
-
+  std::vector<double> x;
+  std::vector<double> t;
   char buffer[50];
 
+  const std::vector<float> ordered_params = []() {
+    std::vector<float> result;
+    std::string params(ORDERED_PARAMS);
+
+    size_t start = 0;
+    size_t end = params.find(',');
+
+    while (end != std::string::npos) {
+      std::string token = params.substr(start, end - start);
+      result.push_back(std::stof(token));
+
+      start = end + 1;
+      end = params.find(',', start);
+    }
+
+    if (start < params.size()) {
+      std::string token = params.substr(start);
+      result.push_back(std::stof(token));
+    }
+
+    return result;
+  }();
   HindmarshRose *model =
-      new HindmarshRose(synaptic, 0, 0.001, ordered_params[0],
+      new HindmarshRose(synaptic, 0, TIME_INCREMENT, ordered_params[0],
                         ordered_params[1], ordered_params[2], ordered_params[3],
                         ordered_params[4], ordered_params[5]);
 
-  // stdio_init_all();
+  stdio_init_all();
 
   uart_init(UART_ID, BAUD_RATE);
 

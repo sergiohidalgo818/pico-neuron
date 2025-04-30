@@ -13,10 +13,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PICO_BOARD pico_w CACHE STRING "Board type")
-include(pico_neuron_config.cmake)
 include(pico_sdk_import.cmake)
 
 project(pico-neuron DESCRIPTION "Program that runs a neural model in a Raspberry Pico" LANGUAGES C CXX ASM)
+include(pico_neuron_config.cmake)
 
 pico_sdk_init()
 
@@ -42,17 +42,29 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-  DECIMAL_PRECISION=${DECIMAL_PRECISION_VALUE}
-  MODEL_NAME=${MODEL_NAME_VALUE}
-  SYNAPTICAL=${SYNAPTICAL_VALUE}
-  RESPONSE=${RESPONSE_VALUE}
-  THRESHOLD=${THRESHOLD_VALUE}
-  ORDERED_PARAMS=${ORDERED_PARAMS_VALUE}
-)
+add_definitions(-DDECIMAL_PRECISION="${DECIMAL_PRECISION}")
+add_definitions(-DMODEL_NAME="${MODEL_NAME}")
+add_definitions(-DSYNAPTICAL="${SYNAPTICAL}")
+add_definitions(-DRESPONSE="${RESPONSE}")
+add_definitions(-DTHRESHOLD="${THRESHOLD}")
+add_definitions(-DORDERED_PARAMS="${ORDERED_PARAMS}")
+add_definitions(-DPICO_DEFAULT_CPU_CLOCK=250000000)
 
+add_compile_options(
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
+    -fno-exceptions 
+    -fno-check-new 
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-enforce-eh-specs>
+    -g 
+    -ffunction-sections 
+    -fdata-sections 
+    -O3
+    -funroll-loops 
+    -Werror 
+    -Wall
+)
 # no_flash means the target is to run from RAM
-# pico_set_binary_type ( ${PROJECT_NAME} no_flash)
+pico_set_binary_type ( ${PROJECT_NAME} no_flash)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
@@ -67,8 +79,16 @@ target_link_libraries(
         ${PROJECT_NAME} 
         pico_stdlib
         hardware_uart
-        hardware_timer
+    -Wl,--start-group
+    stdc++_nano
+    -Wl,--end-group
         )
+
+target_link_options(${PROJECT_NAME} PRIVATE
+
+    --specs=nano.specs
+    --specs=nosys.specs
+)
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
