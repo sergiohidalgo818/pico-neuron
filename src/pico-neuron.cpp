@@ -91,6 +91,8 @@ int main() {
   while (true) {
     model->calculate();
     sprintf(buffer, "%.5f\n", model->x);
-    uart_puts(UART_ID, buffer);
+    // uart_puts(UART_ID, buffer);
   }
+  sprintf(buffer, "%.5f\n", model->time);
+  uart_puts(UART_ID, buffer);
 }
