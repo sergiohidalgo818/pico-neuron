@@ -16,6 +16,13 @@
  * Model enumeration for the selection of the model
  *
  */
-enum class ModelType { Hindmarsh_Rose, Hindmarsh_Rose_Mod, Rulkov_Map, Custom };
+enum class ModelType {
+  Hindmarsh_Rose,
+  Hindmarsh_Rose_Chaotic,
+  Hindmarsh_Rose_Mod,
+  Hindmarsh_Rose_Mod_Chaotic,
+  Rulkov_Map,
+  Custom
+};
 
 #endif /* MODEL_TYPE_H */

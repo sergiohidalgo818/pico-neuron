@@ -24,6 +24,7 @@ class Model {
 public:
   bool synaptic;
   float threshold;
+  float output_value;
   float recived_value;
   float time;
   float time_increment;
@@ -65,7 +66,7 @@ public:
    *
    * @return Returns the calculated value.
    */
-  virtual void calculate() {}
+  virtual float calculate() { return 0.0; }
 
   /**
    * @brief This function frees the model.

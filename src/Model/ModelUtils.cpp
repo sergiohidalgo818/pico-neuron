@@ -14,13 +14,17 @@
 
 const std::map<ModelType, std::string> model_to_str{
     {ModelType::Hindmarsh_Rose, "hindmarsh_rose"},
+    {ModelType::Hindmarsh_Rose_Chaotic, "hindmarsh_rose_chaotic"},
     {ModelType::Hindmarsh_Rose_Mod, "hindmarsh_rose_mod"},
+    {ModelType::Hindmarsh_Rose_Mod_Chaotic, "hindmarsh_rose_mod_chaotic"},
     {ModelType::Rulkov_Map, "rulkov_map"},
     {ModelType::Custom, "custom"}};
 
 const std::map<std::string, ModelType> str_to_model{
     {"hindmarsh_rose", ModelType::Hindmarsh_Rose},
+    {"hindmarsh_rose_chaotic", ModelType::Hindmarsh_Rose_Chaotic},
     {"hindmarsh_rose_mod", ModelType::Hindmarsh_Rose_Mod},
+    {"hindmarsh_rose_mod_chaotic", ModelType::Hindmarsh_Rose_Mod_Chaotic},
     {"rulkov_map", ModelType::Rulkov_Map},
     {"custom", ModelType::Custom}};
 

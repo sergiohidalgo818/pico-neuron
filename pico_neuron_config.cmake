@@ -43,6 +43,10 @@ endfunction()
 
 parse_config()
 
+string(REGEX REPLACE "f" "" THRESHOLD "${THRESHOLD}")
+string(REGEX REPLACE "f" "" TIME_INCREMENT "${TIME_INCREMENT}")
+string(REGEX REPLACE "f" "" FREQUENCY "${FREQUENCY}")
+
 if(DEFINED ORDERED_PARAMS)
 
     string(REGEX REPLACE "f" "" RAW_VALUES "${ORDERED_PARAMS}")
@@ -51,5 +55,3 @@ if(DEFINED ORDERED_PARAMS)
 
     set(${ORDERED_PARAMS} "${ORDERED_PARAMS}" )
 endif()
-
-

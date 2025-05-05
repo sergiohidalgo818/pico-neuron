@@ -8,6 +8,8 @@
  * @copyright Copyright (c) 2025
  */
 #include "Model/HindmarshRose.hpp"
+#include "Model/HindmarshRoseMod.hpp"
+#include "Model/ModelType.hpp"
 #include "Model/ModelUtils.hpp"
 #include "default.hpp"
 #include "hardware/uart.h"
@@ -24,7 +26,6 @@
 #define BAUD_RATE 1000000
 #define UART_TX_PIN 0
 #define UART_RX_PIN 1
-#define TIME_INCREMENT 0.009
 #define END_VALUE -9999.0f
 
 void uart_init_custom() {
@@ -38,14 +39,17 @@ void uart_init_custom() {
 
 __not_in_flash("main_loop") void main_loop() {
 
-  std::string model_name = MODEL_NAME;
-  std::string response = RESPONSE;
-  float threshold = atof(THRESHOLD);
-  bool synaptic = SYNAPTIC;
-  std::vector<double> x;
-  std::vector<double> t;
+  constexpr float decimal_precision = DECIMAL_PRECISION;
+  constexpr const char *model_name = MODEL_NAME;
+  constexpr const char *response = RESPONSE;
+  constexpr float threshold = THRESHOLD;
+  constexpr bool synaptic = SYNAPTIC;
+  constexpr float time_increment = TIME_INCREMENT;
+  constexpr float frequency = FREQUENCY;
   char buffer[32];
-
+  float counter = frequency;
+  Model *model;
+  ModelType model_type = ModelUtils::get_model_by_string(model_name);
   const std::vector<float> ordered_params = []() {
     std::vector<float> result;
     std::string params(ORDERED_PARAMS);
@@ -68,21 +72,43 @@ __not_in_flash("main_loop") void main_loop() {
 
     return result;
   }();
-  HindmarshRose *model =
-      new HindmarshRose(synaptic, 0, TIME_INCREMENT, ordered_params[0],
-                        ordered_params[1], ordered_params[2], ordered_params[3],
-                        ordered_params[4], ordered_params[5]);
+
+  switch (model_type) {
+  case ModelType::Hindmarsh_Rose:
+  case ModelType::Hindmarsh_Rose_Chaotic:
+    model = new HindmarshRose(synaptic, 0, TIME_INCREMENT, ordered_params[0],
+                              ordered_params[1], ordered_params[2],
+                              ordered_params[3], ordered_params[4],
+                              ordered_params[5]);
+    break;
+
+  case ModelType::Hindmarsh_Rose_Mod:
+  case ModelType::Hindmarsh_Rose_Mod_Chaotic:
+    model = new HindmarshRoseMod(synaptic, 0, TIME_INCREMENT, ordered_params[0],
+                                 ordered_params[1], ordered_params[2],
+                                 ordered_params[3], ordered_params[4],
+                                 ordered_params[5], ordered_params[6]);
+  default:
+    model = new HindmarshRose(synaptic, 0, TIME_INCREMENT, ordered_params[0],
+                              ordered_params[1], ordered_params[2],
+                              ordered_params[3], ordered_params[4],
+                              ordered_params[5]);
+    break;
+  }
 
   while (true) {
-    model->calculate();
+    float value = model->calculate();
     uint32_t bits;
 
-    memcpy(&bits, &model->x, sizeof(bits));
-    if (multicore_fifo_wready()) {
+    memcpy(&bits, &value, sizeof(bits));
+    if (multicore_fifo_wready() && counter <= decimal_precision) {
       multicore_fifo_push_blocking(bits);
+      counter = frequency;
     }
 
-    if (model->time >= 2000) {
+    counter -= 1;
+
+    if (model->time >= 10000) {
       break;
     }
   }

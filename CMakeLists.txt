@@ -23,14 +23,19 @@ pico_sdk_init()
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron.cpp
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/Model.cpp
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/ModelUtils.cpp
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/HindmarshRose.cpp
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/HindmarshRoseMod.cpp
 )
 
 # Define your header files
 set(HEADERS
   ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/default.hpp 
   ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/Model.hpp
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/ModelType.hpp
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/ModelUtils.hpp
   ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/HindmarshRose.hpp
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/HindmarshRoseMod.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -41,14 +46,17 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}
 )
 
-add_definitions(-DDECIMAL_PRECISION="${DECIMAL_PRECISION}")
-add_definitions(-DMODEL_NAME="${MODEL_NAME}")
-add_definitions(-DSYNAPTICAL="${SYNAPTICAL}")
-add_definitions(-DRESPONSE="${RESPONSE}")
-add_definitions(-DTHRESHOLD="${THRESHOLD}")
-add_definitions(-DORDERED_PARAMS="${ORDERED_PARAMS}")
-add_definitions(-DPICO_DEFAULT_CPU_CLOCK=250000000)
-
+target_compile_definitions(pico-neuron PRIVATE
+    DECIMAL_PRECISION=${DECIMAL_PRECISION}
+    MODEL_NAME="${MODEL_NAME}"
+    SYNAPTICAL=${SYNAPTICAL}
+    RESPONSE="${RESPONSE}"
+    THRESHOLD=${THRESHOLD}
+    TIME_INCREMENT=${TIME_INCREMENT}
+    FREQUENCY=${FREQUENCY}
+    ORDERED_PARAMS="${ORDERED_PARAMS}"
+    PICO_DEFAULT_CPU_CLOCK=250000000
+)
 add_compile_options(
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
     -fno-exceptions 

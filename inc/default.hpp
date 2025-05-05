@@ -53,7 +53,7 @@
  * @details Override it in the correspondent model config file
  */
 #ifndef THRESHOLD
-#define THRESHOLD 0.75
+#define THRESHOLD 0.75f
 #endif
 
 /**
@@ -63,6 +63,24 @@
  */
 #ifndef ORDERED_PARAMS
 #define ORDERED_PARAMS 0.2f, 0.3f, 0.4f, 0.5f
+#endif
+
+/**
+ * @def TIME_INCREMENT
+ * @brief Indicates the time increment between each calculation
+ * @details Override it in the correspondent model config file
+ */
+#ifndef TIME_INCREMENT
+#define TIME_INCREMENT 0.001
+#endif
+
+/**
+ * @def FREQUENCY
+ * @brief Indicates the frequency of the model
+ * @details Override it in the correspondent model config file
+ */
+#ifndef FREQUENCY
+#define FREQUENCY 100
 #endif
 
 #endif /* DEFAULT_H */

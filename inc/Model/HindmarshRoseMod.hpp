@@ -1,31 +1,26 @@
 /**
- * @file HindmarshRose.hpp
+ * @file HindmarshRoseMod.hpp
  * @author Sergio Hidalgo (sergiohg.dev@gmail.com)
- * @brief Header File for the Hindmarsh Rose HindmarshRose
+ * @brief Header File for the Hindmarsh Rose HindmarshRoseMod
  * @version 0.1
  * @date 2025-04-22
  *
  * @copyright Copyright (c) 2025
  */
-#ifndef HINDMARSH_ROSE_H
-#define HINDMARSH_ROSE_H
-#include "Model.hpp"
-#define HINDMARSH_ROSE_NPARAMS 6
+#ifndef HINDMARSH_ROSE_MOD_H
+#define HINDMARSH_ROSE_MOD_H
+#include "HindmarshRose.hpp"
+#define HINDMARSH_ROSE_MOD_NPARAMS 6
 /**
- * @class HindmarshRose
- * @brief This class implements the Hindmarsh-Rose model.
+ * @class HindmarshRoseMod
+ * @brief This class implements the Hindmarsh-Rose modified model.
  *
  *
  */
-class HindmarshRose : public Model {
+class HindmarshRoseMod : public HindmarshRose {
 
 public:
-  float x;
-  float y;
-  float z;
-  float e;
-  float S;
-  float m;
+  float v;
 
 public:
   /**
@@ -40,11 +35,13 @@ public:
    * @param e The e value for the model.
    * @param S The S value for the model.
    * @param m The m value for the model.
+   * @param v The v value for the model.
    *
-   * @return Returns the Hindmarsh-Rose model initialized.
+   * @return Returns the Hindmarsh-Rose modified model initialized.
    */
-  HindmarshRose(bool synaptic, float initial_time, float time_increment,
-                float x, float y, float z, float e, float S, float m);
+  HindmarshRoseMod(bool synaptic, float initial_time, float time_increment,
+                   float x, float y, float z, float e, float S, float m,
+                   float v);
 
   /**
    * @brief This function initialices the Hindmarsh-Rose model.
@@ -59,12 +56,13 @@ public:
    * @param e The e value for the model.
    * @param S The S value for the model.
    * @param m The m value for the model.
+   * @param v The v value for the model.
    *
    * @return Returns the Hindmarsh-Rose model initialized.
    */
-  HindmarshRose(bool synaptic, float threshold, float initial_time,
-                float time_increment, float x, float y, float z, float e,
-                float S, float m);
+  HindmarshRoseMod(bool synaptic, float threshold, float initial_time,
+                   float time_increment, float x, float y, float z, float e,
+                   float S, float m, float v);
   /**
    * @brief This function calculates the next time on the Hindmarsh-Rose model.
    *
@@ -80,4 +78,4 @@ public:
   void free();
 };
 
-#endif /* HINDMARSH_ROSE_H */
+#endif /* HINDMARSH_ROSE_MOD_H */

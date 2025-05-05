@@ -34,7 +34,7 @@ HindmarshRose::HindmarshRose(bool synaptic, float threshold, float initial_time,
   this->m = m;
 }
 
-void HindmarshRose::calculate() {
+float HindmarshRose::calculate() {
   float value = 0;
   if (this->synaptic) {
     // TODO: Add the synaptic calculation
@@ -49,5 +49,7 @@ void HindmarshRose::calculate() {
   this->y = aux_y;
   this->z = aux_z;
   this->time += this->time_increment;
+
+  return this->x;
 }
 void HindmarshRose::free() { delete this; }
