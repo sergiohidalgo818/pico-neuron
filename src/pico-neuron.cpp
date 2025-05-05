@@ -78,7 +78,9 @@ __not_in_flash("main_loop") void main_loop() {
     uint32_t bits;
 
     memcpy(&bits, &model->x, sizeof(bits));
-    multicore_fifo_push_blocking(bits);
+    if (multicore_fifo_wready()) {
+      multicore_fifo_push_blocking(bits);
+    }
 
     if (model->time >= 500) {
       break;
@@ -95,7 +97,6 @@ __not_in_flash("write_loop") void write_loop() {
   char buffer[32];
   int len;
   while (true) {
-
     uint32_t received = multicore_fifo_pop_blocking();
     float received_float;
 
