@@ -24,7 +24,7 @@
 #define BAUD_RATE 1000000
 #define UART_TX_PIN 0
 #define UART_RX_PIN 1
-#define TIME_INCREMENT 0.005
+#define TIME_INCREMENT 0.009
 #define END_VALUE -9999.0f
 
 void uart_init_custom() {
@@ -82,7 +82,7 @@ __not_in_flash("main_loop") void main_loop() {
       multicore_fifo_push_blocking(bits);
     }
 
-    if (model->time >= 500) {
+    if (model->time >= 2000) {
       break;
     }
   }
