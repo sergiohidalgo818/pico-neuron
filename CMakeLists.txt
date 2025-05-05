@@ -5,7 +5,6 @@ set(PICO_SDK_FETCH_FROM_GIT on)
 set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_BINARY_DIR}/_deps)
 set(FREERTOS_FETCH_FROM_GIT on)
 set(PICO_CXX_ENABLE_EXCEPTIONS off)
-
 set (CODE_SOURCE_DIR src)
 set (CODE_HEADERS_DIR inc)
 
@@ -19,6 +18,8 @@ project(pico-neuron DESCRIPTION "Program that runs a neural model in a Raspberry
 include(pico_neuron_config.cmake)
 
 pico_sdk_init()
+set(TINYUSB_PATH ${CMAKE_SOURCE_DIR}/lib/tinyusb)
+set(TINYSUSB_CONFIG ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/"tusb_config.h")  # Replace with correct path
 
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron.cpp
@@ -66,19 +67,19 @@ add_compile_options(
 # pico_set_binary_type ( ${PROJECT_NAME} no_flash)
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(${PROJECT_NAME} 1)
-pico_enable_stdio_usb(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 0)
+pico_enable_stdio_usb(${PROJECT_NAME} 1)
 
 
-# Add the standard include files to the build
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${TINYUSB_PATH} ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR})
 
 # Add any user requested libraries
 target_link_libraries(
         ${PROJECT_NAME} 
-        pico_stdlib
-        hardware_uart
-        pico_multicore
+         pico_stdlib  
+         tinyusb_device
+
+         pico_multicore
     -Wl,--start-group
     stdc++_nano
     -Wl,--end-group
