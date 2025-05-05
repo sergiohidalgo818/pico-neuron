@@ -63,7 +63,7 @@ add_compile_options(
     -Wall
 )
 # no_flash means the target is to run from RAM
-pico_set_binary_type ( ${PROJECT_NAME} no_flash)
+# pico_set_binary_type ( ${PROJECT_NAME} no_flash)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
@@ -78,6 +78,7 @@ target_link_libraries(
         ${PROJECT_NAME} 
         pico_stdlib
         hardware_uart
+        pico_multicore
     -Wl,--start-group
     stdc++_nano
     -Wl,--end-group

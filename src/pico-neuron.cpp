@@ -10,20 +10,23 @@
 #include "Model/HindmarshRose.hpp"
 #include "Model/ModelUtils.hpp"
 #include "default.hpp"
-// #include "hardware/dma.h"
 #include "hardware/uart.h"
-
+#include "pico/multicore.h"
 #include "pico/stdlib.h"
+
+#include <cstring>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 
 #define UART_ID uart0
-#define BAUD_RATE 115200
+#define BAUD_RATE 1000000
 #define UART_TX_PIN 0
 #define UART_RX_PIN 1
-#define TIME_INCREMENT 0.001
+#define TIME_INCREMENT 0.005
+#define END_VALUE -9999.0f
+
 void uart_init_custom() {
   uart_init(UART_ID, BAUD_RATE);
   gpio_set_function(UART_TX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_TX_PIN));
@@ -32,23 +35,8 @@ void uart_init_custom() {
   uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
   uart_set_fifo_enabled(UART_ID, true);
 }
-// int dma_uart_init() {
-//   int dma_chan;
-//   dma_chan = dma_claim_unused_channel(true);
-//   dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
-//   channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);
-//   channel_config_set_read_increment(&cfg, true);
-//   channel_config_set_write_increment(&cfg, false);
-//   channel_config_set_dreq(&cfg, uart_get_dreq(UART_ID, true)); // TX
-//
-//   dma_channel_configure(dma_chan, &cfg,
-//                         &uart_get_hw(UART_ID)->dr, // UART TX FIFO
-//                         NULL,                      // Set source on transfer
-//                         0,                         // Set count on transfer
-//                         false);                    // Don't start yet
-//   return dma_chan;
-// }
-int main() {
+
+__not_in_flash("main_loop") void main_loop() {
 
   std::string model_name = MODEL_NAME;
   std::string response = RESPONSE;
@@ -85,14 +73,47 @@ int main() {
                         ordered_params[1], ordered_params[2], ordered_params[3],
                         ordered_params[4], ordered_params[5]);
 
-  stdio_init_all();
-  uart_init_custom();
-
   while (true) {
     model->calculate();
-    sprintf(buffer, "%.5f\n", model->x);
-    // uart_puts(UART_ID, buffer);
+    uint32_t bits;
+
+    memcpy(&bits, &model->x, sizeof(bits));
+    multicore_fifo_push_blocking(bits);
+
+    if (model->time >= 500) {
+      break;
+    }
   }
-  sprintf(buffer, "%.5f\n", model->time);
-  uart_puts(UART_ID, buffer);
+  uint32_t end_bits;
+  float end = END_VALUE;
+
+  memcpy(&end_bits, &end, sizeof(end_bits));
+  multicore_fifo_push_blocking(end_bits);
+}
+
+__not_in_flash("write_loop") void write_loop() {
+  char buffer[32];
+  int len;
+  while (true) {
+
+    uint32_t received = multicore_fifo_pop_blocking();
+    float received_float;
+
+    memcpy(&received_float, &received, sizeof(received_float));
+
+    if (received_float == END_VALUE) {
+      break;
+    }
+    len = sprintf(buffer, "%.5f\n", received_float);
+    uart_write_blocking(UART_ID, (const uint8_t *)buffer, len);
+  }
+  len = sprintf(buffer, "END\n");
+  uart_write_blocking(UART_ID, (const uint8_t *)buffer, len);
+}
+int main() {
+
+  stdio_init_all();
+  uart_init_custom();
+  multicore_launch_core1(main_loop);
+  write_loop();
 }

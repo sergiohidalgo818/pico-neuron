@@ -15,8 +15,8 @@ HindmarshRose::HindmarshRose(bool synaptic, float initial_time,
                              float e, float S, float m)
     : Model(synaptic, initial_time, time_increment) {
   this->x = x;
-  this->y = (time_increment * (1 - 5 * x * x)) / (time_increment - 1);
-  this->z = (time_increment * m * S * (x + 1.6)) / (time_increment * m - 1);
+  this->y = 1.0f - 5.0f * x * x;
+  this->z = S * (x + 1.6f);
   this->e = e;
   this->S = S;
   this->m = m;
@@ -27,8 +27,8 @@ HindmarshRose::HindmarshRose(bool synaptic, float threshold, float initial_time,
                              float e, float S, float m)
     : Model(synaptic, threshold, initial_time, time_increment) {
   this->x = x;
-  this->y = (time_increment * (1 - 5 * x * x)) / (time_increment - 1);
-  this->z = (time_increment * m * S * (x + 1.6)) / (time_increment * m - 1);
+  this->y = 1.0f - 5.0f * x * x;
+  this->z = S * (x + 1.6f);
   this->e = e;
   this->S = S;
   this->m = m;
