@@ -10,8 +10,8 @@
 #include "Model/HindmarshRose.hpp"
 #include "Model/ModelUtils.hpp"
 #include "default.hpp"
+#include "hardware/dma.h"
 #include "hardware/uart.h"
-#include "pico/multicore.h"
 #include "pico/stdlib.h"
 
 #include <cstring>
@@ -35,7 +35,24 @@ void uart_init_custom() {
   uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
   uart_set_fifo_enabled(UART_ID, true);
 }
+int dma_uart_init() {
+  int dma_chan = dma_claim_unused_channel(true);
+  dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
 
+  channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);
+  channel_config_set_read_increment(&cfg, true);
+  channel_config_set_write_increment(&cfg, false);
+  channel_config_set_dreq(&cfg, uart_get_dreq(UART_ID, true)); // TX DREQ
+
+  dma_channel_configure(dma_chan, &cfg,
+                        &uart_get_hw(UART_ID)->dr, // destination: UART FIFO
+                        NULL,                      // source will be set later
+                        0,                         // length will be set later
+                        false                      // don't start yet
+  );
+
+  return dma_chan;
+}
 __not_in_flash("main_loop") void main_loop() {
 
   std::string model_name = MODEL_NAME;
@@ -44,7 +61,12 @@ __not_in_flash("main_loop") void main_loop() {
   bool synaptic = SYNAPTIC;
   std::vector<double> x;
   std::vector<double> t;
-  char buffer[32];
+  char buffer_a[32];
+  char buffer_b[32];
+  char *active_buffer = buffer_a;
+  char *next_buffer = buffer_b;
+  int dma_chan = dma_uart_init();
+  bool dma_busy = false;
 
   const std::vector<float> ordered_params = []() {
     std::vector<float> result;
@@ -75,45 +97,36 @@ __not_in_flash("main_loop") void main_loop() {
 
   while (true) {
     model->calculate();
-    uint32_t bits;
-
-    memcpy(&bits, &model->x, sizeof(bits));
-    multicore_fifo_push_blocking(bits);
-
     if (model->time >= 500) {
       break;
     }
-  }
-  uint32_t end_bits;
-  float end = END_VALUE;
 
-  memcpy(&end_bits, &end, sizeof(end_bits));
-  multicore_fifo_push_blocking(end_bits);
-}
-
-__not_in_flash("write_loop") void write_loop() {
-  char buffer[32];
-  int len;
-  while (true) {
-
-    uint32_t received = multicore_fifo_pop_blocking();
-    float received_float;
-
-    memcpy(&received_float, &received, sizeof(received_float));
-
-    if (received_float == END_VALUE) {
-      break;
+    int len = snprintf(active_buffer, 32, "%.5f\n", model->x);
+    if (dma_busy) {
+      dma_channel_wait_for_finish_blocking(dma_chan);
     }
-    len = sprintf(buffer, "%.5f\n", received_float);
-    uart_write_blocking(UART_ID, (const uint8_t *)buffer, len);
+
+    dma_channel_set_read_addr(dma_chan, active_buffer, false);
+    dma_channel_set_trans_count(dma_chan, len, true); // start immediately
+    dma_busy = true;
+    std::swap(active_buffer, next_buffer);
   }
-  len = sprintf(buffer, "END\n");
-  uart_write_blocking(UART_ID, (const uint8_t *)buffer, len);
+  if (dma_busy) {
+    dma_channel_wait_for_finish_blocking(dma_chan);
+  }
+
+  const char *end_msg = "END\n";
+  int end_len = strlen(end_msg);
+  dma_channel_set_read_addr(dma_chan, end_msg, false);
+  dma_channel_set_trans_count(dma_chan, end_len, true);
+  dma_channel_wait_for_finish_blocking(dma_chan);
+
+  dma_channel_unclaim(dma_chan);
 }
+
 int main() {
 
   stdio_init_all();
   uart_init_custom();
-  multicore_launch_core1(main_loop);
-  write_loop();
+  main_loop();
 }
