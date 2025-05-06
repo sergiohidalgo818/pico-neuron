@@ -118,6 +118,7 @@ __not_in_flash("main_loop") void main_loop() {
   uint32_t end_bits;
   float end = END_VALUE;
   memcpy(&end_bits, &end, sizeof(end_bits));
+
   multicore_fifo_push_blocking(end_bits);
 
   HindmarshRose_free(model);
