@@ -10,7 +10,6 @@ set (CODE_SOURCE_DIR src)
 set (CODE_HEADERS_DIR inc)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PICO_BOARD pico_w CACHE STRING "Board type")
@@ -21,21 +20,15 @@ include(pico_neuron_config.cmake)
 pico_sdk_init()
 
 set(SOURCES
-    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron.cpp
-    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/Model.cpp
-    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/ModelUtils.cpp
-    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/HindmarshRose.cpp
-    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/HindmarshRoseMod.cpp
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/pico-neuron.c
+    ${PROJECT_SOURCE_DIR}/${CODE_SOURCE_DIR}/Model/HindmarshRose.c
 )
 
 # Define your header files
 set(HEADERS
-  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/default.hpp 
-  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/Model.hpp
-  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/ModelType.hpp
-  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/ModelUtils.hpp
-  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/HindmarshRose.hpp
-  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/HindmarshRoseMod.hpp
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/types.h 
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/default.h 
+  ${PROJECT_SOURCE_DIR}/${CODE_HEADERS_DIR}/Model/HindmarshRose.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -49,7 +42,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_compile_definitions(pico-neuron PRIVATE
     DECIMAL_PRECISION=${DECIMAL_PRECISION}
     MODEL_NAME="${MODEL_NAME}"
-    SYNAPTICAL=${SYNAPTICAL}
+    SYNAPTIC=${SYNAPTIC}
     RESPONSE="${RESPONSE}"
     THRESHOLD=${THRESHOLD}
     TIME_INCREMENT=${TIME_INCREMENT}

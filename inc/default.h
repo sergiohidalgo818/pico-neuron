@@ -34,7 +34,7 @@
  * @details Override it in the correspondent model config file
  */
 #ifndef SYNAPTIC
-#define SYNAPTIC false
+#define SYNAPTIC 0
 #endif
 
 /**
