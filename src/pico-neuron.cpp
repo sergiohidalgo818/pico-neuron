@@ -184,7 +184,7 @@ __not_in_flash("write_loop") void write_loop() {
   char buffer[32];
   int len;
   int dma_send_chan = dma_uart_send_init();
-  int dma_send_mirror_chan = dma_uart_send_mirror_init();
+  // int dma_send_mirror_chan = dma_uart_send_mirror_init();
   while (true) {
     uint32_t received = multicore_fifo_pop_blocking();
     float received_float;
@@ -194,8 +194,17 @@ __not_in_flash("write_loop") void write_loop() {
     if (received_float == END_VALUE) {
       break;
     }
+
     len = sprintf(buffer, "%.5f\n", received_float);
-    uart_write_blocking(UART_SEND_ID, (const uint8_t *)buffer, len);
+
+    dma_channel_set_read_addr(dma_send_chan, (const uint8_t *)buffer, false);
+    dma_channel_set_trans_count(dma_send_chan, len, true);
+
+    // dma_channel_set_read_addr(dma_send_mirror_chan, buffer, false);
+    // dma_channel_set_trans_count(dma_send_mirror_chan, len, true);
+
+    dma_channel_wait_for_finish_blocking(dma_send_chan);
+    // dma_channel_wait_for_finish_blocking(dma_send_mirror_chan);
   }
   len = sprintf(buffer, "END\n");
   uart_write_blocking(UART_SEND_ID, (const uint8_t *)buffer, len);
