@@ -26,10 +26,8 @@
 #define UART_SEND_ID uart0
 #define UART_SEND_TX_PIN 0
 #define UART_SEND_RX_PIN 1
-
-#define UART_SEND_MIRROR_ID uart1
-#define UART_SEND_MIRROR_TX_PIN 4
-#define UART_SEND_MIRROR_RX_PIN 5
+#define UART_SEND_MIRROR_TX_PIN 17
+#define UART_SEND_MIRROR_RX_PIN 16
 
 #define BAUD_RATE 1000000
 #define END_VALUE -9999.0f
@@ -46,16 +44,14 @@ void uart_send_init() {
 }
 
 void uart_send_mirror_init() {
-  uart_init(UART_SEND_MIRROR_ID, BAUD_RATE);
-  gpio_set_function(
-      UART_SEND_MIRROR_TX_PIN,
-      UART_FUNCSEL_NUM(UART_SEND_MIRROR_ID, UART_SEND_MIRROR_TX_PIN));
-  gpio_set_function(
-      UART_SEND_MIRROR_RX_PIN,
-      UART_FUNCSEL_NUM(UART_SEND_MIRROR_ID, UART_SEND_MIRROR_RX_PIN));
-  uart_set_hw_flow(UART_SEND_MIRROR_ID, false, false);
-  uart_set_format(UART_SEND_MIRROR_ID, 8, 1, UART_PARITY_NONE);
-  uart_set_fifo_enabled(UART_SEND_MIRROR_ID, true);
+  uart_init(UART_SEND_ID, BAUD_RATE);
+  gpio_set_function(UART_SEND_MIRROR_TX_PIN,
+                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_MIRROR_TX_PIN));
+  gpio_set_function(UART_SEND_MIRROR_RX_PIN,
+                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_MIRROR_RX_PIN));
+  uart_set_hw_flow(UART_SEND_ID, false, false);
+  uart_set_format(UART_SEND_ID, 8, 1, UART_PARITY_NONE);
+  uart_set_fifo_enabled(UART_SEND_ID, true);
 }
 
 int dma_uart_send_init() {
@@ -73,27 +69,6 @@ int dma_uart_send_init() {
       NULL,                           // source will be set later
       0,                              // length will be set later
       false                           // don't start yet
-  );
-
-  return dma_chan;
-}
-
-int dma_uart_send_mirror_init() {
-  int dma_chan = dma_claim_unused_channel(true);
-  dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
-
-  channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);
-  channel_config_set_read_increment(&cfg, true);
-  channel_config_set_write_increment(&cfg, false);
-  channel_config_set_dreq(&cfg,
-                          uart_get_dreq(UART_SEND_MIRROR_ID, true)); // TX DREQ
-
-  dma_channel_configure(
-      dma_chan, &cfg,
-      &uart_get_hw(UART_SEND_MIRROR_ID)->dr, // destination: UART FIFO
-      NULL,                                  // source will be set later
-      0,                                     // length will be set later
-      false                                  // don't start yet
   );
 
   return dma_chan;
@@ -183,11 +158,9 @@ __not_in_flash("write_loop") void write_loop() {
   char buffer_b[32];
   char *active_buffer = buffer_a;
   char *next_buffer = buffer_b;
-
   int len;
-  // int dma_send_chan = dma_uart_send_init();
-  int dma_send_mirror_chan = dma_uart_send_mirror_init();
-  bool dma_busy = false;
+  int dma_send_chan = dma_uart_send_init();
+
   while (true) {
     uint32_t received = multicore_fifo_pop_blocking();
     float received_float;
@@ -197,31 +170,28 @@ __not_in_flash("write_loop") void write_loop() {
     if (received_float == END_VALUE) {
       break;
     }
+    memset(active_buffer, 0, 32);
 
     len = snprintf(active_buffer, 32, "%.5f\n", received_float);
 
-    if (dma_busy) {
-      dma_channel_wait_for_finish_blocking(dma_send_mirror_chan);
-    }
+    dma_channel_wait_for_finish_blocking(dma_send_chan);
 
-    dma_channel_set_read_addr(dma_send_mirror_chan, active_buffer, false);
-    dma_channel_set_trans_count(dma_send_mirror_chan, len, true);
+    dma_channel_set_read_addr(dma_send_chan, active_buffer, false);
+    dma_channel_set_trans_count(dma_send_chan, len, true);
 
-    dma_busy = true;
-    // dma_channel_set_read_addr(dma_send_mirror_chan, buffer, false);
-    // dma_channel_set_trans_count(dma_send_mirror_chan, len, true);
-
-    // dma_channel_wait_for_finish_blocking(dma_send_mirror_chan);
     std::swap(active_buffer, next_buffer);
   }
 
   len = snprintf(active_buffer, 32, "END\n");
 
-  if (dma_busy) {
-    dma_channel_wait_for_finish_blocking(dma_send_mirror_chan);
-  }
-  dma_channel_set_read_addr(dma_send_mirror_chan, active_buffer, false);
-  dma_channel_set_trans_count(dma_send_mirror_chan, len, true);
+  dma_channel_wait_for_finish_blocking(dma_send_chan);
+
+  dma_channel_set_read_addr(dma_send_chan, active_buffer, false);
+  dma_channel_set_trans_count(dma_send_chan, len, true);
+
+  dma_channel_wait_for_finish_blocking(dma_send_chan);
+
+  dma_channel_unclaim(dma_send_chan);
 }
 int main() {
 
