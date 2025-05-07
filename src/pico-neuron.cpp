@@ -22,19 +22,39 @@
 #include <unistd.h>
 #include <vector>
 
-#define UART_ID uart0
+#define UART_SEND_ID uart0
+#define UART_SEND_TX_PIN 0
+#define UART_SEND_RX_PIN 1
+
+#define UART_SEND_MIRROR_ID uart1
+#define UART_SEND_MIRROR_TX_PIN 4
+#define UART_SEND_MIRROR_RX_PIN 5
+
 #define BAUD_RATE 1000000
-#define UART_TX_PIN 0
-#define UART_RX_PIN 1
 #define END_VALUE -9999.0f
 
-void uart_init_custom() {
-  uart_init(UART_ID, BAUD_RATE);
-  gpio_set_function(UART_TX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_TX_PIN));
-  gpio_set_function(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
-  uart_set_hw_flow(UART_ID, false, false);
-  uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
-  uart_set_fifo_enabled(UART_ID, true);
+void uart_init_send() {
+  uart_init(UART_SEND_ID, BAUD_RATE);
+  gpio_set_function(UART_SEND_TX_PIN,
+                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_TX_PIN));
+  gpio_set_function(UART_SEND_RX_PIN,
+                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_RX_PIN));
+  uart_set_hw_flow(UART_SEND_ID, false, false);
+  uart_set_format(UART_SEND_ID, 8, 1, UART_PARITY_NONE);
+  uart_set_fifo_enabled(UART_SEND_ID, true);
+}
+
+void uart_init_send_mirror() {
+  uart_init(UART_SEND_MIRROR_ID, BAUD_RATE);
+  gpio_set_function(
+      UART_SEND_MIRROR_TX_PIN,
+      UART_FUNCSEL_NUM(UART_SEND_MIRROR_ID, UART_SEND_MIRROR_TX_PIN));
+  gpio_set_function(
+      UART_SEND_MIRROR_RX_PIN,
+      UART_FUNCSEL_NUM(UART_SEND_MIRROR_ID, UART_SEND_MIRROR_RX_PIN));
+  uart_set_hw_flow(UART_SEND_MIRROR_ID, false, false);
+  uart_set_format(UART_SEND_MIRROR_ID, 8, 1, UART_PARITY_NONE);
+  uart_set_fifo_enabled(UART_SEND_MIRROR_ID, true);
 }
 
 __not_in_flash("main_loop") void main_loop() {
@@ -132,15 +152,17 @@ __not_in_flash("write_loop") void write_loop() {
       break;
     }
     len = sprintf(buffer, "%.5f\n", received_float);
-    uart_write_blocking(UART_ID, (const uint8_t *)buffer, len);
+    uart_write_blocking(UART_SEND_ID, (const uint8_t *)buffer, len);
   }
   len = sprintf(buffer, "END\n");
-  uart_write_blocking(UART_ID, (const uint8_t *)buffer, len);
+  uart_write_blocking(UART_SEND_ID, (const uint8_t *)buffer, len);
 }
 int main() {
 
   stdio_init_all();
-  uart_init_custom();
+  uart_init_send();
+  uart_init_send_mirror();
+
   multicore_launch_core1(main_loop);
   write_loop();
 }
