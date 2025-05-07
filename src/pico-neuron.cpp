@@ -181,9 +181,14 @@ __not_in_flash("main_loop") void main_loop() {
 }
 
 __not_in_flash("write_loop") void write_loop() {
-  char buffer[32];
+  char buffer_a[32];
+  char buffer_b[32];
+  char *active_buffer = buffer_a;
+  char *next_buffer = buffer_b;
+
   int len;
   int dma_send_chan = dma_uart_send_init();
+  bool dma_sended = false;
   // int dma_send_mirror_chan = dma_uart_send_mirror_init();
   while (true) {
     uint32_t received = multicore_fifo_pop_blocking();
@@ -195,19 +200,24 @@ __not_in_flash("write_loop") void write_loop() {
       break;
     }
 
-    len = sprintf(buffer, "%.5f\n", received_float);
+    len = sprintf(active_buffer, "%.5f\n", received_float);
 
-    dma_channel_set_read_addr(dma_send_chan, (const uint8_t *)buffer, false);
+    if (dma_sended) {
+      dma_channel_wait_for_finish_blocking(dma_send_chan);
+    }
+
+    dma_channel_set_read_addr(dma_send_chan, (const uint8_t *)active_buffer,
+                              false);
     dma_channel_set_trans_count(dma_send_chan, len, true);
 
     // dma_channel_set_read_addr(dma_send_mirror_chan, buffer, false);
     // dma_channel_set_trans_count(dma_send_mirror_chan, len, true);
 
-    dma_channel_wait_for_finish_blocking(dma_send_chan);
     // dma_channel_wait_for_finish_blocking(dma_send_mirror_chan);
+    std::swap(active_buffer, next_buffer);
   }
-  len = sprintf(buffer, "END\n");
-  uart_write_blocking(UART_SEND_ID, (const uint8_t *)buffer, len);
+  len = sprintf(active_buffer, "END\n");
+  uart_write_blocking(UART_SEND_ID, (const uint8_t *)active_buffer, len);
 }
 int main() {
 
