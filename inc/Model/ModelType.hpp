@@ -7,8 +7,8 @@
  *
  * @copyright Copyright (c) 2025
  */
-#ifndef MODEL_TYPE_H
-#define MODEL_TYPE_H
+#ifndef MODEL_TYPE_HPP
+#define MODEL_TYPE_HPP
 /**
  * @class ModelType
  * @brief Model enumeration
@@ -25,4 +25,4 @@ enum class ModelType {
   Custom
 };
 
-#endif /* MODEL_TYPE_H */
+#endif /* MODEL_TYPE_HPP */

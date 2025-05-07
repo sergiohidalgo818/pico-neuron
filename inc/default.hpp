@@ -7,8 +7,8 @@
  *
  * @copyright Copyright (c) 2025
  */
-#ifndef DEFAULT_H
-#define DEFAULT_H
+#ifndef DEFAULT_HPP
+#define DEFAULT_HPP
 
 /**
  * @def DECIMAL_PRECISION
@@ -83,4 +83,4 @@
 #define FREQUENCY 100
 #endif
 
-#endif /* DEFAULT_H */
+#endif /* DEFAULT_HPP */

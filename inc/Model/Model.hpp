@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2024
  *
  */
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MODEL_HPP
+#define MODEL_HPP
 
 /**
  * @class Model
@@ -75,4 +75,4 @@ public:
   void free();
 };
 
-#endif /* MODEL_H */
+#endif /* MODEL_HPP */

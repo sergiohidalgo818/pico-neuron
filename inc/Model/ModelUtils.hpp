@@ -7,8 +7,8 @@
  *
  * @copyright Copyright (c) 2025
  */
-#ifndef MODEL_UTILS_H
-#define MODEL_UTILS_H
+#ifndef MODEL_UTILS_HPP
+#define MODEL_UTILS_HPP
 #include "ModelType.hpp"
 #include <set>
 #include <string>
@@ -24,4 +24,4 @@ public:
   static std::set<std::string> get_model_strings();
   static ModelType get_model_by_string(std::string model_name);
 };
-#endif /* MODEL_UTILS_H */
+#endif /* MODEL_UTILS_HPP */

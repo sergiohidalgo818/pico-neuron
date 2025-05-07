@@ -7,10 +7,9 @@
  *
  * @copyright Copyright (c) 2025
  */
-#ifndef HINDMARSH_ROSE_H
-#define HINDMARSH_ROSE_H
+#ifndef HIDMARSH_ROSE_HPP
+#define HIDMARSH_ROSE_HPP
 #include "Model.hpp"
-#define HINDMARSH_ROSE_NPARAMS 6
 /**
  * @class HindmarshRose
  * @brief This class implements the Hindmarsh-Rose model.
@@ -80,4 +79,4 @@ public:
   void free();
 };
 
-#endif /* HINDMARSH_ROSE_H */
+#endif /* HIDMARSH_ROSE_HPP */
