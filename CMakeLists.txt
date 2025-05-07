@@ -57,6 +57,9 @@ target_compile_definitions(pico-neuron PRIVATE
     ORDERED_PARAMS="${ORDERED_PARAMS}"
     PICO_DEFAULT_CPU_CLOCK=250000000
 )
+
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+
 add_compile_options(
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
     -fno-exceptions 
@@ -69,6 +72,10 @@ add_compile_options(
     -funroll-loops 
     -Werror 
     -Wall
+    -flto
+    -ffast-math
+    -mcpu=cortex-m0plus
+    -mthumb
 )
 # no_flash means the target is to run from RAM
 # pico_set_binary_type ( ${PROJECT_NAME} no_flash)

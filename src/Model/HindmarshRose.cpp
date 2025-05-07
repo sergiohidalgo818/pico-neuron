@@ -9,7 +9,6 @@
  *
  */
 #include "Model/HindmarshRose.hpp"
-
 HindmarshRose::HindmarshRose(bool synaptic, float initial_time,
                              float time_increment, float x, float y, float z,
                              float e, float S, float m)
@@ -35,21 +34,21 @@ HindmarshRose::HindmarshRose(bool synaptic, float threshold, float initial_time,
 }
 
 float HindmarshRose::calculate() {
-  float value = 0;
   if (this->synaptic) {
     // TODO: Add the synaptic calculation
   }
-  float aux_x, aux_y, aux_z;
+  const float x_sq = x * x;
 
-  aux_x = x + time_increment * (y + 3 * x * x - x * x * x - z + e);
-  aux_y = y + time_increment * (1 - 5 * x * x - y);
-  aux_z = z + time_increment * m * (-z + S * (x + 1.6));
+  const float dx = y + 3.0f * x_sq - x_sq * x - z + e;
+  const float dy = 1.0f - 5.0f * x_sq - y;
+  const float dz = m * (-z + S * (x + 1.6f));
 
-  this->x = aux_x;
-  this->y = aux_y;
-  this->z = aux_z;
-  this->time += this->time_increment;
+  x += time_increment * dx;
+  y += time_increment * dy;
+  z += time_increment * dz;
 
-  return this->x;
+  time += time_increment;
+
+  return x;
 }
 void HindmarshRose::free() { delete this; }

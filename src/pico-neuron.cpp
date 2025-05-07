@@ -45,9 +45,9 @@ __not_in_flash("main_loop") void main_loop() {
   constexpr float threshold = THRESHOLD;
   constexpr bool synaptic = SYNAPTIC;
   constexpr float time_increment = TIME_INCREMENT;
-  constexpr float frequency = FREQUENCY;
+  constexpr int frequency = FREQUENCY;
   char buffer[32];
-  float counter = frequency;
+  int counter = frequency;
   Model *model;
   ModelType model_type = ModelUtils::get_model_by_string(model_name);
   const std::vector<float> ordered_params = []() {
@@ -76,7 +76,7 @@ __not_in_flash("main_loop") void main_loop() {
   switch (model_type) {
   case ModelType::Hindmarsh_Rose:
   case ModelType::Hindmarsh_Rose_Chaotic:
-    model = new HindmarshRose(synaptic, 0, TIME_INCREMENT, ordered_params[0],
+    model = new HindmarshRose(synaptic, 0, time_increment, ordered_params[0],
                               ordered_params[1], ordered_params[2],
                               ordered_params[3], ordered_params[4],
                               ordered_params[5]);
@@ -84,12 +84,12 @@ __not_in_flash("main_loop") void main_loop() {
 
   case ModelType::Hindmarsh_Rose_Mod:
   case ModelType::Hindmarsh_Rose_Mod_Chaotic:
-    model = new HindmarshRoseMod(synaptic, 0, TIME_INCREMENT, ordered_params[0],
+    model = new HindmarshRoseMod(synaptic, 0, time_increment, ordered_params[0],
                                  ordered_params[1], ordered_params[2],
                                  ordered_params[3], ordered_params[4],
                                  ordered_params[5], ordered_params[6]);
   default:
-    model = new HindmarshRose(synaptic, 0, TIME_INCREMENT, ordered_params[0],
+    model = new HindmarshRose(synaptic, 0, time_increment, ordered_params[0],
                               ordered_params[1], ordered_params[2],
                               ordered_params[3], ordered_params[4],
                               ordered_params[5]);
@@ -101,7 +101,7 @@ __not_in_flash("main_loop") void main_loop() {
     uint32_t bits;
 
     memcpy(&bits, &value, sizeof(bits));
-    if (multicore_fifo_wready() && counter <= decimal_precision) {
+    if (multicore_fifo_wready() && counter <= 0) {
       multicore_fifo_push_blocking(bits);
       counter = frequency;
     }
