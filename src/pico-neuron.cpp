@@ -33,7 +33,7 @@
 #define BAUD_RATE 1000000
 #define END_VALUE -9999.0f
 
-void uart_init_send() {
+void uart_send_init() {
   uart_init(UART_SEND_ID, BAUD_RATE);
   gpio_set_function(UART_SEND_TX_PIN,
                     UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_TX_PIN));
@@ -44,7 +44,26 @@ void uart_init_send() {
   uart_set_fifo_enabled(UART_SEND_ID, true);
 }
 
-void uart_init_send_mirror() {
+int dma_uart_send_init() {
+  int dma_chan = dma_claim_unused_channel(true);
+  dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
+
+  channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);
+  channel_config_set_read_increment(&cfg, true);
+  channel_config_set_write_increment(&cfg, false);
+  channel_config_set_dreq(&cfg, uart_get_dreq(UART_SEND_ID, true)); // TX DREQ
+
+  dma_channel_configure(dma_chan, &cfg,
+                        &uart_get_hw(UART_ID)->dr, // destination: UART FIFO
+                        NULL,                      // source will be set later
+                        0,                         // length will be set later
+                        false                      // don't start yet
+  );
+
+  return dma_chan;
+}
+
+void uart_send_mirror_init() {
   uart_init(UART_SEND_MIRROR_ID, BAUD_RATE);
   gpio_set_function(
       UART_SEND_MIRROR_TX_PIN,
@@ -55,6 +74,25 @@ void uart_init_send_mirror() {
   uart_set_hw_flow(UART_SEND_MIRROR_ID, false, false);
   uart_set_format(UART_SEND_MIRROR_ID, 8, 1, UART_PARITY_NONE);
   uart_set_fifo_enabled(UART_SEND_MIRROR_ID, true);
+}
+int dma_uart_send_mirror_init() {
+  int dma_chan = dma_claim_unused_channel(true);
+  dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
+
+  channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);
+  channel_config_set_read_increment(&cfg, true);
+  channel_config_set_write_increment(&cfg, false);
+  channel_config_set_dreq(&cfg,
+                          uart_get_dreq(UART_SEND_MIRROR_ID, true)); // TX DREQ
+
+  dma_channel_configure(dma_chan, &cfg,
+                        &uart_get_hw(UART_ID)->dr, // destination: UART FIFO
+                        NULL,                      // source will be set later
+                        0,                         // length will be set later
+                        false                      // don't start yet
+  );
+
+  return dma_chan;
 }
 
 __not_in_flash("main_loop") void main_loop() {
@@ -142,6 +180,8 @@ __not_in_flash("main_loop") void main_loop() {
 __not_in_flash("write_loop") void write_loop() {
   char buffer[32];
   int len;
+  int dma_send_chan = dma_uart_send_init();
+  int dma_send_mirror_chan = dma_uart_send_mirror_init();
   while (true) {
     uint32_t received = multicore_fifo_pop_blocking();
     float received_float;
@@ -160,8 +200,8 @@ __not_in_flash("write_loop") void write_loop() {
 int main() {
 
   stdio_init_all();
-  uart_init_send();
-  uart_init_send_mirror();
+  uart_send_init();
+  uart_send_mirror_init();
 
   multicore_launch_core1(main_loop);
   write_loop();
