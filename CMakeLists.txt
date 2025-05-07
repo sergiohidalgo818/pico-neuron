@@ -93,6 +93,7 @@ target_link_libraries(
         ${PROJECT_NAME} 
         pico_stdlib
         hardware_uart
+        hardware_dma
         pico_multicore
     -Wl,--start-group
     stdc++_nano

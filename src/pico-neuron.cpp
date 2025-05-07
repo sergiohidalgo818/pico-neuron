@@ -12,6 +12,7 @@
 #include "Model/ModelType.hpp"
 #include "Model/ModelUtils.hpp"
 #include "default.hpp"
+#include "hardware/dma.h"
 #include "hardware/uart.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
@@ -53,11 +54,12 @@ int dma_uart_send_init() {
   channel_config_set_write_increment(&cfg, false);
   channel_config_set_dreq(&cfg, uart_get_dreq(UART_SEND_ID, true)); // TX DREQ
 
-  dma_channel_configure(dma_chan, &cfg,
-                        &uart_get_hw(UART_ID)->dr, // destination: UART FIFO
-                        NULL,                      // source will be set later
-                        0,                         // length will be set later
-                        false                      // don't start yet
+  dma_channel_configure(
+      dma_chan, &cfg,
+      &uart_get_hw(UART_SEND_ID)->dr, // destination: UART FIFO
+      NULL,                           // source will be set later
+      0,                              // length will be set later
+      false                           // don't start yet
   );
 
   return dma_chan;
@@ -85,11 +87,12 @@ int dma_uart_send_mirror_init() {
   channel_config_set_dreq(&cfg,
                           uart_get_dreq(UART_SEND_MIRROR_ID, true)); // TX DREQ
 
-  dma_channel_configure(dma_chan, &cfg,
-                        &uart_get_hw(UART_ID)->dr, // destination: UART FIFO
-                        NULL,                      // source will be set later
-                        0,                         // length will be set later
-                        false                      // don't start yet
+  dma_channel_configure(
+      dma_chan, &cfg,
+      &uart_get_hw(UART_SEND_MIRROR_ID)->dr, // destination: UART FIFO
+      NULL,                                  // source will be set later
+      0,                                     // length will be set later
+      false                                  // don't start yet
   );
 
   return dma_chan;
