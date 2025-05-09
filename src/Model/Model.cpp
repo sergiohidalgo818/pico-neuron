@@ -13,7 +13,7 @@
 Model::Model(bool synaptic, float initial_time, float time_incremet) {
   this->synaptic = synaptic;
   this->threshold = 0.0;
-  this->recived_value = 0.0;
+  this->recived_value = END_VALUE;
   this->time = initial_time;
   this->time_increment = time_incremet;
 }
@@ -22,7 +22,7 @@ Model::Model(bool synaptic, float threshold, float initial_time,
              float time_incremet) {
   this->synaptic = synaptic;
   this->threshold = threshold;
-  this->recived_value = 0.0;
+  this->recived_value = END_VALUE;
   this->time = initial_time;
   this->time_increment = time_incremet;
 }

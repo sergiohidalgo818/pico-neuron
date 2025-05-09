@@ -16,7 +16,6 @@ HindmarshRoseMod::HindmarshRoseMod(bool synaptic, float initial_time,
                                    float z, float e, float S, float m, float v)
     : HindmarshRose(synaptic, initial_time, time_increment, x, y, z, e, S, m) {
   this->v = v;
-  this->gsync = 0.186;
 }
 
 HindmarshRoseMod::HindmarshRoseMod(bool synaptic, float threshold,
@@ -26,18 +25,28 @@ HindmarshRoseMod::HindmarshRoseMod(bool synaptic, float threshold,
     : HindmarshRose(synaptic, threshold, initial_time, time_increment, x, y, z,
                     e, S, m) {
   this->v = v;
-  this->gsync = 0.186;
+}
+
+HindmarshRoseMod::HindmarshRoseMod(bool synaptic, float initial_time,
+                                   float time_increment, float x, float y,
+                                   float z, float e, float S, float m, float v,
+                                   float gsync, float Sfast, float Esyn,
+                                   float Vfast)
+    : HindmarshRose(synaptic, initial_time, time_increment, x, y, z, e, S, m,
+                    gsync, Sfast, Esyn, Vfast) {
+
+  this->v = v;
 }
 
 float HindmarshRoseMod::calculate() {
-  float Isyn = 0;
+  float isyn = 0;
   if (this->synaptic && this->recived_value != END_VALUE) {
-    float Isyn =
-        (gsync * (x - Esyn)) / (1 + std::exp(Sfast * (Vfast - recived_value)));
+    float isyn =
+        (gsync * (x - esyn)) / (1 + std::exp(sfast * (vfast - recived_value)));
   }
   const float x_sq = x * x;
 
-  const float dx = y + 3.0f * x_sq - x_sq * x - z + e + Isyn;
+  const float dx = y + 3.0f * x_sq - x_sq * x - z + e + isyn;
   const float dy = 1.0f - 5.0f * x_sq - y;
   const float dz = m * (-v * z + S * (x + 1.6f));
 

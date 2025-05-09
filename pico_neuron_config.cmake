@@ -3,7 +3,7 @@
 if(NOT DEFINED MODEL_NAME)
     set(MODEL_NAME "hindmarsh_rose")
 endif()
-set(CONFIG_FILE "${CMAKE_SOURCE_DIR}/config/${MODEL_NAME}.cfg")
+set(CONFIG_FILE "${CMAKE_SOURCE_DIR}/config/${PICO_BOARD}/${MODEL_NAME}.cfg")
 # Function to parse config values
 function(parse_config)
     # Read the entire config file

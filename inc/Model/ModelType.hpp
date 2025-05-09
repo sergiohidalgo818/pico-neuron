@@ -18,9 +18,13 @@
  */
 enum class ModelType {
   Hindmarsh_Rose,
+  Hindmarsh_Rose_Syn,
   Hindmarsh_Rose_Chaotic,
+  Hindmarsh_Rose_Chaotic_Syn,
   Hindmarsh_Rose_Mod,
+  Hindmarsh_Rose_Mod_Syn,
   Hindmarsh_Rose_Mod_Chaotic,
+  Hindmarsh_Rose_Mod_Chaotic_Syn,
   Rulkov_Map,
   Custom
 };

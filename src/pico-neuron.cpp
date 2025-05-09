@@ -18,6 +18,7 @@
 #include "pico/stdlib.h"
 
 #include <cstring>
+#include <numeric>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -30,8 +31,8 @@
 #define UART_SEND_MIRROR_RX_PIN 16
 
 #define UART_RECIVE_ID uart1
-#define UART_RECIVE_TX_PIN 12
-#define UART_RECIVE_RX_PIN 13
+#define UART_RECIVE_TX_PIN 8
+#define UART_RECIVE_RX_PIN 9
 
 #define BAUD_RATE 1000000
 
@@ -89,6 +90,31 @@ __not_in_flash("read_uart_with_timeout") float read_uart_with_timeout(
   return END_VALUE;
 }
 
+__not_in_flash("measure_average_runtime") double measure_average_runtime(
+    Model *model) {
+  uint32_t durations[1000];
+  size_t count = 0;
+
+  uint64_t start_time = to_us_since_boot(get_absolute_time());
+
+  while (to_us_since_boot(get_absolute_time()) - start_time < 1000000 &&
+         count < 1000) {
+    uint64_t t0 = to_us_since_boot(get_absolute_time());
+    model->calculate();
+    uint64_t t1 = to_us_since_boot(get_absolute_time());
+    durations[count++] = t1 - t0;
+  }
+
+  if (count == 0)
+    return 0.0;
+
+  uint64_t total = 0;
+  for (size_t i = 0; i < count; ++i)
+    total += durations[i];
+
+  return static_cast<double>(total) / count;
+}
+
 __not_in_flash("main_loop") void main_loop() {
 
   constexpr float decimal_precision = DECIMAL_PRECISION;
@@ -134,12 +160,32 @@ __not_in_flash("main_loop") void main_loop() {
                               ordered_params[5]);
     break;
 
+  case ModelType::Hindmarsh_Rose_Syn:
+  case ModelType::Hindmarsh_Rose_Chaotic_Syn:
+    model = new HindmarshRose(
+        synaptic, 0, time_increment, ordered_params[0], ordered_params[1],
+        ordered_params[2], ordered_params[3], ordered_params[4],
+        ordered_params[5], ordered_params[6], ordered_params[7],
+        ordered_params[8], ordered_params[9]);
+    break;
+
   case ModelType::Hindmarsh_Rose_Mod:
   case ModelType::Hindmarsh_Rose_Mod_Chaotic:
     model = new HindmarshRoseMod(synaptic, 0, time_increment, ordered_params[0],
                                  ordered_params[1], ordered_params[2],
                                  ordered_params[3], ordered_params[4],
                                  ordered_params[5], ordered_params[6]);
+
+    break;
+
+  case ModelType::Hindmarsh_Rose_Mod_Syn:
+  case ModelType::Hindmarsh_Rose_Mod_Chaotic_Syn:
+    model = new HindmarshRoseMod(
+        synaptic, 0, time_increment, ordered_params[0], ordered_params[1],
+        ordered_params[2], ordered_params[3], ordered_params[4],
+        ordered_params[5], ordered_params[6], ordered_params[7],
+        ordered_params[8], ordered_params[9], ordered_params[10]);
+    break;
   default:
     model = new HindmarshRose(synaptic, 0, time_increment, ordered_params[0],
                               ordered_params[1], ordered_params[2],
@@ -148,6 +194,11 @@ __not_in_flash("main_loop") void main_loop() {
     break;
   }
 
+  double micro = measure_average_runtime(model);
+  int number_exe = 1 / model->time_increment;
+
+  double micro_rest = 1000000 / (number_exe * micro);
+  double sleep_for = micro_rest / number_exe;
   while (true) {
     if (model->synaptic) {
       model->interact(read_uart_with_timeout(READ_MS));
@@ -160,15 +211,8 @@ __not_in_flash("main_loop") void main_loop() {
       multicore_fifo_push_blocking(bits);
     }
 
-    if (model->time >= 10001) {
-      break;
-    }
+    sleep_us(sleep_for);
   }
-  uint32_t end_bits;
-  float end = END_VALUE;
-
-  memcpy(&end_bits, &end, sizeof(end_bits));
-  multicore_fifo_push_blocking(end_bits);
 }
 
 __not_in_flash("write_loop") void write_loop() {
@@ -185,9 +229,6 @@ __not_in_flash("write_loop") void write_loop() {
 
     memcpy(&received_float, &received, sizeof(received_float));
 
-    if (received_float == END_VALUE) {
-      break;
-    }
     memset(active_buffer, 0, 32);
 
     len = snprintf(active_buffer, 32, "%.5f\n", received_float);
@@ -199,17 +240,6 @@ __not_in_flash("write_loop") void write_loop() {
 
     std::swap(active_buffer, next_buffer);
   }
-
-  len = snprintf(active_buffer, 32, "END\n");
-
-  dma_channel_wait_for_finish_blocking(dma_send_chan);
-
-  dma_channel_set_read_addr(dma_send_chan, active_buffer, false);
-  dma_channel_set_trans_count(dma_send_chan, len, true);
-
-  dma_channel_wait_for_finish_blocking(dma_send_chan);
-
-  dma_channel_unclaim(dma_send_chan);
 }
 int main() {
 

@@ -46,6 +46,30 @@ public:
    * @brief This function initialices the Hindmarsh-Rose model.
    * @param synaptic Indicates if the Hindmarsh-Rose model will respond at the
    * inputs.
+   * @param initial_time The initial time for the model.
+   * @param time_increment The time increment for the model.
+   * @param x The x value for the model.
+   * @param y The y value for the model.
+   * @param z The z value for the model.
+   * @param e The e value for the model.
+   * @param S The S value for the model.
+   * @param m The m value for the model.
+   * @param v The v value for the model.
+   * @param gsync The gsync value for the model.
+   * @param Sfast The Sfast value for the model.
+   * @param Esyn The Esyn value for the model.
+   * @param Vfast The Vfast value for the model.
+   *
+   * @return Returns the Hindmarsh-Rose model initialized.
+   */
+  HindmarshRoseMod(bool synaptic, float initial_time, float time_increment,
+                   float x, float y, float z, float e, float S, float m,
+                   float v, float gsync, float Sfast, float Esyn, float Vfast);
+
+  /**
+   * @brief This function initialices the Hindmarsh-Rose model.
+   * @param synaptic Indicates if the Hindmarsh-Rose model will respond at the
+   * inputs.
    * @param threshold The threshold for the neuron.
    * @param initial_time The initial time for the model.
    * @param time_increment The time increment for the model.

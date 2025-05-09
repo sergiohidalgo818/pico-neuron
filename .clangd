@@ -6,9 +6,5 @@ CompileFlags:
     "-I/usr/lib/gcc/arm-none-eabi/12.2.1/include",
     "-I/usr/lib/gcc/arm-none-eabi/12.2.1/include-fixed",
     "-I/usr/lib/arm-none-eabi/include",
-    "--target=arm-none-eabi",
-    "-mcpu=cortex-m0plus", 
-    "-mthumb",
-    "-D__RP2040__"
   ]
 
