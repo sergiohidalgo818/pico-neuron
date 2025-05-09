@@ -83,4 +83,13 @@
 #define FREQUENCY 100
 #endif
 
+/**
+ * @def END_VALUE
+ * @brief Indicates the value that finish interaction or shows error
+ * @details Override it in the correspondent model config file
+ */
+#ifndef END_VALUE
+#define END_VALUE -9999.0f
+#endif
+
 #endif /* DEFAULT_HPP */

@@ -29,29 +29,21 @@
 #define UART_SEND_MIRROR_TX_PIN 17
 #define UART_SEND_MIRROR_RX_PIN 16
 
+#define UART_RECIVE_ID uart1
+#define UART_RECIVE_TX_PIN 12
+#define UART_RECIVE_RX_PIN 13
+
 #define BAUD_RATE 1000000
-#define END_VALUE -9999.0f
 
-void uart_send_init() {
-  uart_init(UART_SEND_ID, BAUD_RATE);
-  gpio_set_function(UART_SEND_TX_PIN,
-                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_TX_PIN));
-  gpio_set_function(UART_SEND_RX_PIN,
-                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_RX_PIN));
-  uart_set_hw_flow(UART_SEND_ID, false, false);
-  uart_set_format(UART_SEND_ID, 8, 1, UART_PARITY_NONE);
-  uart_set_fifo_enabled(UART_SEND_ID, true);
-}
+#define READ_MS 2
 
-void uart_send_mirror_init() {
-  uart_init(UART_SEND_ID, BAUD_RATE);
-  gpio_set_function(UART_SEND_MIRROR_TX_PIN,
-                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_MIRROR_TX_PIN));
-  gpio_set_function(UART_SEND_MIRROR_RX_PIN,
-                    UART_FUNCSEL_NUM(UART_SEND_ID, UART_SEND_MIRROR_RX_PIN));
-  uart_set_hw_flow(UART_SEND_ID, false, false);
-  uart_set_format(UART_SEND_ID, 8, 1, UART_PARITY_NONE);
-  uart_set_fifo_enabled(UART_SEND_ID, true);
+void uart_custom_init(uart_inst_t *uart_id, uint tx_pin, uint rx_pin) {
+  uart_init(uart_id, BAUD_RATE);
+  gpio_set_function(tx_pin, UART_FUNCSEL_NUM(uart_id, tx_pin));
+  gpio_set_function(rx_pin, UART_FUNCSEL_NUM(uart_id, rx_pin));
+  uart_set_hw_flow(uart_id, false, false);
+  uart_set_format(uart_id, 8, 1, UART_PARITY_NONE);
+  uart_set_fifo_enabled(uart_id, true);
 }
 
 int dma_uart_send_init() {
@@ -72,6 +64,29 @@ int dma_uart_send_init() {
   );
 
   return dma_chan;
+}
+
+__not_in_flash("read_uart_with_timeout") float read_uart_with_timeout(
+    uint timeout_ms) {
+  char buffer[32] = "";
+  int index = 0;
+  absolute_time_t deadline = make_timeout_time_ms(timeout_ms);
+
+  while (absolute_time_diff_us(get_absolute_time(), deadline) > 0) {
+    if (uart_is_readable(uart0)) {
+      char ch = uart_getc(uart0);
+      deadline = make_timeout_time_ms(timeout_ms); // reset timeout on input
+
+      if (ch == '\n') {
+        buffer[index] = '\0';
+        return atof(buffer);
+      } else if (index < sizeof(buffer) - 1) {
+        buffer[index++] = ch;
+      }
+    }
+  }
+
+  return END_VALUE;
 }
 
 __not_in_flash("main_loop") void main_loop() {
@@ -134,6 +149,9 @@ __not_in_flash("main_loop") void main_loop() {
   }
 
   while (true) {
+    if (model->synaptic) {
+      model->interact(read_uart_with_timeout(READ_MS));
+    }
     float value = model->calculate();
     uint32_t bits;
 
@@ -196,8 +214,9 @@ __not_in_flash("write_loop") void write_loop() {
 int main() {
 
   stdio_init_all();
-  uart_send_init();
-  uart_send_mirror_init();
+  uart_custom_init(UART_SEND_ID, UART_SEND_TX_PIN, UART_SEND_RX_PIN);
+  uart_custom_init(UART_SEND_ID, UART_SEND_MIRROR_TX_PIN, UART_SEND_RX_PIN);
+  uart_custom_init(UART_RECIVE_ID, UART_RECIVE_TX_PIN, UART_RECIVE_RX_PIN);
 
   multicore_launch_core1(main_loop);
   write_loop();

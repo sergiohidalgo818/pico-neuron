@@ -10,12 +10,13 @@
  */
 #include "Model/HindmarshRoseMod.hpp"
 #include "Model/HindmarshRose.hpp"
-
+#include <cmath>
 HindmarshRoseMod::HindmarshRoseMod(bool synaptic, float initial_time,
                                    float time_increment, float x, float y,
                                    float z, float e, float S, float m, float v)
     : HindmarshRose(synaptic, initial_time, time_increment, x, y, z, e, S, m) {
   this->v = v;
+  this->gsync = 0.186;
 }
 
 HindmarshRoseMod::HindmarshRoseMod(bool synaptic, float threshold,
@@ -25,15 +26,18 @@ HindmarshRoseMod::HindmarshRoseMod(bool synaptic, float threshold,
     : HindmarshRose(synaptic, threshold, initial_time, time_increment, x, y, z,
                     e, S, m) {
   this->v = v;
+  this->gsync = 0.186;
 }
 
 float HindmarshRoseMod::calculate() {
-  if (this->synaptic) {
-    // TODO: Add the synaptic calculation
+  float Isyn = 0;
+  if (this->synaptic && this->recived_value != END_VALUE) {
+    float Isyn =
+        (gsync * (x - Esyn)) / (1 + std::exp(Sfast * (Vfast - recived_value)));
   }
   const float x_sq = x * x;
 
-  const float dx = y + 3.0f * x_sq - x_sq * x - z + e;
+  const float dx = y + 3.0f * x_sq - x_sq * x - z + e + Isyn;
   const float dy = 1.0f - 5.0f * x_sq - y;
   const float dz = m * (-v * z + S * (x + 1.6f));
 

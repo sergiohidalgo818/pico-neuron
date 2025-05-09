@@ -11,6 +11,8 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include "default.hpp"
+
 /**
  * @class Model
  * @brief This class implements the base class model.

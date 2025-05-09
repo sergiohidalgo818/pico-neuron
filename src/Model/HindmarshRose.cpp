@@ -9,6 +9,8 @@
  *
  */
 #include "Model/HindmarshRose.hpp"
+#include <cmath>
+
 HindmarshRose::HindmarshRose(bool synaptic, float initial_time,
                              float time_increment, float x, float y, float z,
                              float e, float S, float m)
@@ -19,6 +21,11 @@ HindmarshRose::HindmarshRose(bool synaptic, float initial_time,
   this->e = e;
   this->S = S;
   this->m = m;
+
+  this->gsync = 0.241;
+  this->Sfast = 0.44;
+  this->Esyn = -1.92;
+  this->Vfast = -1.66;
 }
 
 HindmarshRose::HindmarshRose(bool synaptic, float threshold, float initial_time,
@@ -31,15 +38,22 @@ HindmarshRose::HindmarshRose(bool synaptic, float threshold, float initial_time,
   this->e = e;
   this->S = S;
   this->m = m;
+
+  this->gsync = 0.241;
+  this->Sfast = 0.44;
+  this->Esyn = -1.92;
+  this->Vfast = -1.66;
 }
 
 float HindmarshRose::calculate() {
-  if (this->synaptic) {
-    // TODO: Add the synaptic calculation
+  float Isyn = 0;
+  if (this->synaptic && this->recived_value != END_VALUE) {
+    float Isyn =
+        (gsync * (x - Esyn)) / (1 + std::exp(Sfast * (Vfast - recived_value)));
   }
   const float x_sq = x * x;
 
-  const float dx = y + 3.0f * x_sq - x_sq * x - z + e;
+  const float dx = y + 3.0f * x_sq - x_sq * x - z + e + Isyn;
   const float dy = 1.0f - 5.0f * x_sq - y;
   const float dz = m * (-z + S * (x + 1.6f));
 

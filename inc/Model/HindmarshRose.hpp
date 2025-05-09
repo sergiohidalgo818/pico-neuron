@@ -26,6 +26,11 @@ public:
   float S;
   float m;
 
+  float gsync;
+  float Sfast;
+  float Esyn;
+  float Vfast;
+
 public:
   /**
    * @brief This function initialices the Hindmarsh-Rose model.
