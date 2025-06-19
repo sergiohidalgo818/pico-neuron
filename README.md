@@ -32,16 +32,23 @@ Inside each folder, there are several configuration files for each model and its
 git clone https://github.com/sergiohidalgo818/pico-neuron.git
 cd pico-neuron
 cmake -B build . -DBOARD_NAME=pico2 -DMODEL_NAME=hindmarsh_rose 
+cd build
+make -j4
 ```
 
 The default board is `pico2`, options are `pico2` and `pico_w`
-The default model is `hindmarsh_rose`, and options are `hindmarsh_rose` and `hindmarsh_rose_mod`, append `_chaotic` for the chaotic mode (but you can simply modify the parameter inside the config file) and `_syn` for enabling synapsis (**Warning:** Synapse under development)
+The default model is `hindmarsh_rose`, and options are `hindmarsh_rose` and `hindmarsh_rose_mod`, append `_chaotic` for the chaotic mode (but you can simply modify the parameter inside the configuration file) and `_syn` for enabling synapse (**Warning:** Synapse under development)
 
 ### Usage
 
-Modify the config files under Defau directory.
+Introduce the program in the Raspberry Pico usually you need to put `pico-neuron.uf2` into the root directory of your Raspberry Pico, for this and the schematic for connection refer to [the raspberry pico docs](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html).
+
+The **output** of the board are pins $0$, $1$, $16$ and $17$.
+The **input** of the board are pins $8$ and $9$.
+
 
 ## TODO
+
 - Change frequency behaviour (or name)
 - Check if fs are needed on cfg files (probably not)
 - Check if there is improvement changing the floats to integers (and precision loss)
